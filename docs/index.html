@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Weekly Dinner Planner</title>
+    <meta name="theme-color" content="#fdf8f1">
+    <meta name="color-scheme" content="light">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Dinners">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="app">
+
+    <!-- =========== SETUP VIEW =========== -->
+    <section id="setupView" class="view" hidden>
+        <header class="hero">
+            <h1>Dinner Planner</h1>
+            <p class="hero-sub">Plan a week of dinners from your recipe library.</p>
+        </header>
+
+        <form id="setupForm" class="form" novalidate>
+            <div class="field">
+                <label for="totalDays">How many days?</label>
+                <div class="stepper" data-stepper="totalDays">
+                    <button type="button" class="step-btn" data-step="-1" aria-label="Decrease">−</button>
+                    <input id="totalDays" name="totalDays" type="number" inputmode="numeric" min="1" max="14" value="7" readonly>
+                    <button type="button" class="step-btn" data-step="1" aria-label="Increase">+</button>
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="cookingEvenings">Cooking evenings</label>
+                <p class="field-hint">Some recipes cover two days, so this can be smaller than the day count.</p>
+                <div class="stepper" data-stepper="cookingEvenings">
+                    <button type="button" class="step-btn" data-step="-1" aria-label="Decrease">−</button>
+                    <input id="cookingEvenings" name="cookingEvenings" type="number" inputmode="numeric" min="1" max="14" value="4" readonly>
+                    <button type="button" class="step-btn" data-step="1" aria-label="Increase">+</button>
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Preferred proteins</label>
+                <p class="field-hint">Pick one or more. Leave empty for any.</p>
+                <div id="proteinList" class="pills" role="group" aria-label="Proteins"></div>
+            </div>
+
+            <div class="field">
+                <label class="toggle">
+                    <input id="allowComplex" name="allowComplex" type="checkbox">
+                    <span class="toggle-track" aria-hidden="true"></span>
+                    <span class="toggle-text">
+                        <span class="toggle-title">Allow complex recipes</span>
+                        <span class="toggle-sub">Off = quick weeknight meals only</span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="field">
+                <label>Cook split</label>
+                <p class="field-hint">How many days each cook covers. They sum to the total.</p>
+                <div class="split">
+                    <div class="split-side">
+                        <span class="split-name">Katya</span>
+                        <div class="stepper" data-stepper="katyaDays">
+                            <button type="button" class="step-btn" data-step="-1" aria-label="Decrease Katya days">−</button>
+                            <input id="katyaDays" name="katyaDays" type="number" inputmode="numeric" min="0" max="14" value="3" readonly>
+                            <button type="button" class="step-btn" data-step="1" aria-label="Increase Katya days">+</button>
+                        </div>
+                    </div>
+                    <div class="split-divider" aria-hidden="true">/</div>
+                    <div class="split-side">
+                        <span class="split-name">Roma</span>
+                        <div class="stepper" data-stepper="romaDays">
+                            <button type="button" class="step-btn" data-step="-1" aria-label="Decrease Roma days">−</button>
+                            <input id="romaDays" name="romaDays" type="number" inputmode="numeric" min="0" max="14" value="4" readonly>
+                            <button type="button" class="step-btn" data-step="1" aria-label="Increase Roma days">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="setupError" class="error-banner" hidden></div>
+
+            <button id="generateBtn" type="submit" class="btn btn-primary btn-block">Generate plan</button>
+        </form>
+    </section>
+
+    <!-- =========== PLAN VIEW =========== -->
+    <section id="planView" class="view" hidden>
+        <header class="plan-header">
+            <button id="editSetupBtn" type="button" class="btn-link" aria-label="Edit setup">‹ Edit</button>
+            <h2 class="plan-title">Your week</h2>
+            <button id="savePlanBtn" type="button" class="btn-link" aria-label="Save plan">Save</button>
+        </header>
+
+        <p id="planSummary" class="plan-summary"></p>
+        <div id="savedFlash" class="saved-flash" hidden>Saved.</div>
+
+        <ol id="dayList" class="day-list"></ol>
+
+        <div class="plan-actions">
+            <button id="regenerateBtn" type="button" class="btn btn-ghost">Regenerate</button>
+            <button id="newPlanBtn" type="button" class="btn btn-ghost">New plan</button>
+        </div>
+    </section>
+
+    <!-- =========== MODIFY-DAY SHEET =========== -->
+    <div id="sheetBackdrop" class="sheet-backdrop" hidden></div>
+    <aside id="modifySheet" class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" hidden>
+        <header class="sheet-head">
+            <h3 id="sheetTitle" class="sheet-title">Modify day</h3>
+            <button id="sheetCloseBtn" type="button" class="icon-btn" aria-label="Close">×</button>
+        </header>
+
+        <div class="sheet-body">
+            <p id="sheetCurrent" class="sheet-current"></p>
+
+            <div class="custom-row">
+                <input id="customMealInput" type="text" placeholder="Or type your own…" maxlength="80" autocomplete="off">
+                <button id="customMealBtn" type="button" class="btn btn-primary btn-sm">Set</button>
+            </div>
+
+            <div class="alts-head">
+                <span class="alts-label">Alternatives</span>
+                <button id="shuffleAltsBtn" type="button" class="btn-link btn-link-sm">Shuffle</button>
+            </div>
+            <ul id="altList" class="alt-list"></ul>
+
+            <button id="clearDayBtn" type="button" class="btn btn-danger-soft btn-block">Remove this day</button>
+        </div>
+    </aside>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

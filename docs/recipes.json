@@ -1,0 +1,514 @@
+[
+  {
+    "id": "recipe-7097",
+    "name": "куриные котлеты",
+    "proteins": [
+      "chicken"
+    ],
+    "complexity": "simple",
+    "daysCovered": 2,
+    "author": "Katya"
+  },
+  {
+    "id": "recipe-1704",
+    "name": "Томатный суп",
+    "proteins": [
+      "vegetarian"
+    ],
+    "complexity": "simple",
+    "daysCovered": 2,
+    "author": "Katya"
+  },
+  {
+    "id": "recipe-1173",
+    "name": "Жульены",
+    "proteins": [
+      "chicken"
+    ],
+    "complexity": "simple",
+    "daysCovered": 2,
+    "author": "Katya"
+  },
+  {
+    "id": "recipe-8493",
+    "name": "Паста островатая",
+    "proteins": [
+      "chicken"
+    ],
+    "complexity": "simple",
+    "daysCovered": 2,
+    "author": "Katya"
+  },
+  {
+    "id": "recipe-1352",
+    "name": "Рагу из говядины",
+    "proteins": [
+      "beef"
+    ],
+    "complexity": "simple",
+    "daysCovered": 2,
+    "author": "Katya"
+  },
+  {
+    "id": "recipe-2125",
+    "name": "Боул с рисом и креветкой",
+    "proteins": [
+      "shrimps"
+    ],
+    "complexity": "simple",
+    "daysCovered": 1,
+    "author": "Katya"
+  },
+  {
+    "id": "recipe-7320",
+    "name": "Ньокки",
+    "proteins": [
+      "vegetarian"
+    ],
+    "complexity": "simple",
+    "daysCovered": 1,
+    "author": "Katya"
+  },
+  {
+    "id": "recipe-8719",
+    "name": "Суп с колбасками",
+    "proteins": [
+      "mixed"
+    ],
+    "complexity": "simple",
+    "daysCovered": 2,
+    "author": "Katya"
+  },
+  {
+    "id": "recipe-2790",
+    "name": "Рагу из индейки",
+    "proteins": [
+      "turkey"
+    ],
+    "complexity": "simple",
+    "daysCovered": 2,
+    "author": "Katya"
+  },
+  {
+    "id": "recipe-7598",
+    "name": "Курочка с моцареллой",
+    "proteins": [
+      "chicken"
+    ],
+    "complexity": "simple",
+    "daysCovered": 1,
+    "author": "Katya"
+  },
+  {
+    "id": "recipe",
+    "name": "Гречка с песто, вялеными томатами и моцареллой",
+    "proteins": [
+      "vegetarian"
+    ],
+    "complexity": "simple",
+    "daysCovered": 1,
+    "author": "Katya"
+  },
+  {
+    "id": "recipe-4268",
+    "name": "Крылышки куриные",
+    "proteins": [
+      "chicken"
+    ],
+    "complexity": "simple",
+    "daysCovered": 1,
+    "author": "Katya"
+  },
+  {
+    "id": "recipe-5339",
+    "name": "Тартар из тунца",
+    "proteins": [
+      "tuna"
+    ],
+    "complexity": "simple",
+    "daysCovered": 1,
+    "author": "Katya"
+  },
+  {
+    "id": "recipe-2",
+    "name": "Пирог с курицей, шпинатом и пюре",
+    "proteins": [
+      "chicken"
+    ],
+    "complexity": "simple",
+    "daysCovered": 2,
+    "author": "Katya"
+  },
+  {
+    "id": "recipe-7810",
+    "name": "Салат с нектарином и сырными чипсами",
+    "proteins": [
+      "vegetarian"
+    ],
+    "complexity": "simple",
+    "daysCovered": 1,
+    "author": "Katya"
+  },
+  {
+    "id": "recipe-1900",
+    "name": "Рисовая лапша – фунчоза",
+    "proteins": [
+      "chicken"
+    ],
+    "complexity": "simple",
+    "daysCovered": 1,
+    "author": "Katya"
+  },
+  {
+    "id": "recipe-8041",
+    "name": "Грибной суп из белых",
+    "proteins": [
+      "vegetarian"
+    ],
+    "complexity": "simple",
+    "daysCovered": 2,
+    "author": "Katya"
+  },
+  {
+    "id": "recipe-4397",
+    "name": "Салат с грудкой и морковью",
+    "proteins": [
+      "chicken"
+    ],
+    "complexity": "simple",
+    "daysCovered": 1,
+    "author": "Katya"
+  },
+  {
+    "id": "recipe-9891",
+    "name": "Тыквенный суп и бутеры с горгонзолой",
+    "proteins": [
+      "vegetarian"
+    ],
+    "complexity": "simple",
+    "daysCovered": 2,
+    "author": "Katya"
+  },
+  {
+    "id": "recipe-8472",
+    "name": "Лимонная паста",
+    "proteins": [
+      "vegetarian"
+    ],
+    "complexity": "simple",
+    "daysCovered": 1,
+    "author": "Katya"
+  },
+  {
+    "id": "recipe-2748",
+    "name": "Курочка в соусе с бульоном",
+    "proteins": [
+      "chicken"
+    ],
+    "complexity": "simple",
+    "daysCovered": 1,
+    "author": "Katya"
+  },
+  {
+    "id": "recipe-2192",
+    "name": "Лимонная паста с креветками",
+    "proteins": [
+      "shrimps"
+    ],
+    "complexity": "simple",
+    "daysCovered": 1,
+    "author": "Katya"
+  },
+  {
+    "id": "recipe-8052",
+    "name": "Ростбиф",
+    "proteins": [
+      "beef"
+    ],
+    "complexity": "simple",
+    "daysCovered": 2,
+    "author": "Katya"
+  },
+  {
+    "id": "recipe-3",
+    "name": "Куриная грудка с лучком, Чили, соусом из сливок и бульона, тимьяном",
+    "proteins": [
+      "chicken"
+    ],
+    "complexity": "simple",
+    "daysCovered": 1,
+    "author": "Katya"
+  },
+  {
+    "id": "recipe-1180",
+    "name": "Шаверма с мясом энтрекот",
+    "proteins": [
+      "beef"
+    ],
+    "complexity": "simple",
+    "daysCovered": 1,
+    "author": "Katya"
+  },
+  {
+    "id": "recipe-6122",
+    "name": "Говядина по бургундски",
+    "proteins": [
+      "beef"
+    ],
+    "complexity": "complex",
+    "daysCovered": 2,
+    "author": "Katya"
+  },
+  {
+    "id": "recipe-2612",
+    "name": "Стейк из тунца",
+    "proteins": [
+      "tuna"
+    ],
+    "complexity": "simple",
+    "daysCovered": 1,
+    "author": "Roma"
+  },
+  {
+    "id": "recipe-9303",
+    "name": "Треска с лимоном в духовке",
+    "proteins": [
+      "codfish"
+    ],
+    "complexity": "simple",
+    "daysCovered": 1,
+    "author": "Roma"
+  },
+  {
+    "id": "recipe-9311",
+    "name": "селедка с картошечкой",
+    "proteins": [
+      "herring"
+    ],
+    "complexity": "simple",
+    "daysCovered": 1,
+    "author": "Roma"
+  },
+  {
+    "id": "recipe-4942",
+    "name": "Рубленные котлеты из красной и белой рыбы",
+    "proteins": [
+      "salmon",
+      "tuna"
+    ],
+    "complexity": "simple",
+    "daysCovered": 2,
+    "author": "Roma"
+  },
+  {
+    "id": "recipe-2558",
+    "name": "Креветки в духовке",
+    "proteins": [
+      "shrimps"
+    ],
+    "complexity": "simple",
+    "daysCovered": 1,
+    "author": "Roma"
+  },
+  {
+    "id": "recipe-1379",
+    "name": "Лосось в духовке",
+    "proteins": [
+      "salmon"
+    ],
+    "complexity": "simple",
+    "daysCovered": 1,
+    "author": "Roma"
+  },
+  {
+    "id": "recipe-5837",
+    "name": "Мусака",
+    "proteins": [
+      "beef"
+    ],
+    "complexity": "medium",
+    "daysCovered": 2,
+    "author": "Roma"
+  },
+  {
+    "id": "recipe-317",
+    "name": "Курица замаринованная в меду и горчице",
+    "proteins": [
+      "chicken"
+    ],
+    "complexity": "simple",
+    "daysCovered": 2,
+    "author": "Roma"
+  },
+  {
+    "id": "recipe-6573",
+    "name": "Паста с креветками и грибами",
+    "proteins": [
+      "shrimps"
+    ],
+    "complexity": "simple",
+    "daysCovered": 1,
+    "author": "Roma"
+  },
+  {
+    "id": "recipe-1601",
+    "name": "Паста болоньезе",
+    "proteins": [
+      "beef"
+    ],
+    "complexity": "simple",
+    "daysCovered": 2,
+    "author": "Roma"
+  },
+  {
+    "id": "recipe-6733",
+    "name": "Канелони с фаршем",
+    "proteins": [
+      "beef"
+    ],
+    "complexity": "complex",
+    "daysCovered": 2,
+    "author": "Roma"
+  },
+  {
+    "id": "orecchiette",
+    "name": "orecchiette с цукини и лососем",
+    "proteins": [
+      "salmon"
+    ],
+    "complexity": "simple",
+    "daysCovered": 2,
+    "author": "Roma"
+  },
+  {
+    "id": "recipe-7555",
+    "name": "Салат с халуми",
+    "proteins": [
+      "halloumi"
+    ],
+    "complexity": "simple",
+    "daysCovered": 1,
+    "author": "Roma"
+  },
+  {
+    "id": "recipe-8956",
+    "name": "Спагетти с фрикадельками",
+    "proteins": [
+      "beef"
+    ],
+    "complexity": "simple",
+    "daysCovered": 2,
+    "author": "Roma"
+  },
+  {
+    "id": "recipe-4819",
+    "name": "Фунчоза с курицей",
+    "proteins": [
+      "chicken"
+    ],
+    "complexity": "simple",
+    "daysCovered": 2,
+    "author": "Roma"
+  },
+  {
+    "id": "recipe-2612-2",
+    "name": "Куриное бедро терияки",
+    "proteins": [
+      "chicken"
+    ],
+    "complexity": "simple",
+    "daysCovered": 2,
+    "author": "Roma"
+  },
+  {
+    "id": "recipe-2200",
+    "name": "Севиче",
+    "proteins": [
+      "tuna",
+      "codfish"
+    ],
+    "complexity": "simple",
+    "daysCovered": 1,
+    "author": "Roma"
+  },
+  {
+    "id": "recipe-4307",
+    "name": "Салат с грудкой",
+    "proteins": [
+      "chicken"
+    ],
+    "complexity": "simple",
+    "daysCovered": 1,
+    "author": "Roma"
+  },
+  {
+    "id": "hachis-parmentier",
+    "name": "Hachis Parmentier",
+    "proteins": [
+      "beef"
+    ],
+    "complexity": "complex",
+    "daysCovered": 2,
+    "author": "Roma"
+  },
+  {
+    "id": "recipe-2305",
+    "name": "Японский стрит фуд – роллы с курицей",
+    "proteins": [
+      "chicken"
+    ],
+    "complexity": "simple",
+    "daysCovered": 1,
+    "author": "Roma"
+  },
+  {
+    "id": "recipe-3762",
+    "name": "Оссобуко",
+    "proteins": [
+      "beef"
+    ],
+    "complexity": "complex",
+    "daysCovered": 2,
+    "author": "Roma"
+  },
+  {
+    "id": "recipe-6284",
+    "name": "Кебабы в духовке",
+    "proteins": [
+      "beef"
+    ],
+    "complexity": "simple",
+    "daysCovered": 2,
+    "author": "Roma"
+  },
+  {
+    "id": "recipe-5953",
+    "name": "Горчичный суп",
+    "proteins": [
+      "pork sausages"
+    ],
+    "complexity": "simple",
+    "daysCovered": 2,
+    "author": "Roma"
+  },
+  {
+    "id": "recipe-9046",
+    "name": "Куриные кабабы",
+    "proteins": [
+      "chicken"
+    ],
+    "complexity": "simple",
+    "daysCovered": 2,
+    "author": "Roma"
+  },
+  {
+    "id": "recipe-6766",
+    "name": "Кебабы листами",
+    "proteins": [
+      "chicken"
+    ],
+    "complexity": "simple",
+    "daysCovered": 2,
+    "author": "Roma"
+  }
+]
