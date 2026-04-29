@@ -1,6 +1,6 @@
 'use strict';
 
-const CACHE_NAME = 'dinner-planner-v2';
+const CACHE_NAME = 'dinner-planner-v5';
 const SHELL_ASSETS = [
     './',
     './index.html',

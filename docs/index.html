@@ -66,23 +66,23 @@
 
             <div class="field">
                 <label>Cook split</label>
-                <p class="field-hint">How many days each cook covers. They sum to the total.</p>
+                <p class="field-hint">How many evenings each cook takes. They sum to the cooking evenings count.</p>
                 <div class="split">
                     <div class="split-side">
                         <span class="split-name">Katya</span>
-                        <div class="stepper" data-stepper="katyaDays">
-                            <button type="button" class="step-btn" data-step="-1" aria-label="Decrease Katya days">−</button>
-                            <input id="katyaDays" name="katyaDays" type="number" inputmode="numeric" min="0" max="14" value="3" readonly>
-                            <button type="button" class="step-btn" data-step="1" aria-label="Increase Katya days">+</button>
+                        <div class="stepper" data-stepper="katyaEvenings">
+                            <button type="button" class="step-btn" data-step="-1" aria-label="Decrease Katya evenings">−</button>
+                            <input id="katyaEvenings" name="katyaEvenings" type="number" inputmode="numeric" min="0" max="14" value="2" readonly>
+                            <button type="button" class="step-btn" data-step="1" aria-label="Increase Katya evenings">+</button>
                         </div>
                     </div>
                     <div class="split-divider" aria-hidden="true">/</div>
                     <div class="split-side">
                         <span class="split-name">Roma</span>
-                        <div class="stepper" data-stepper="romaDays">
-                            <button type="button" class="step-btn" data-step="-1" aria-label="Decrease Roma days">−</button>
-                            <input id="romaDays" name="romaDays" type="number" inputmode="numeric" min="0" max="14" value="4" readonly>
-                            <button type="button" class="step-btn" data-step="1" aria-label="Increase Roma days">+</button>
+                        <div class="stepper" data-stepper="romaEvenings">
+                            <button type="button" class="step-btn" data-step="-1" aria-label="Decrease Roma evenings">−</button>
+                            <input id="romaEvenings" name="romaEvenings" type="number" inputmode="numeric" min="0" max="14" value="2" readonly>
+                            <button type="button" class="step-btn" data-step="1" aria-label="Increase Roma evenings">+</button>
                         </div>
                     </div>
                 </div>
@@ -112,32 +112,6 @@
             <button id="newPlanBtn" type="button" class="btn btn-ghost">New plan</button>
         </div>
     </section>
-
-    <!-- =========== MODIFY-DAY SHEET =========== -->
-    <div id="sheetBackdrop" class="sheet-backdrop" hidden></div>
-    <aside id="modifySheet" class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" hidden>
-        <header class="sheet-head">
-            <h3 id="sheetTitle" class="sheet-title">Modify day</h3>
-            <button id="sheetCloseBtn" type="button" class="icon-btn" aria-label="Close">×</button>
-        </header>
-
-        <div class="sheet-body">
-            <p id="sheetCurrent" class="sheet-current"></p>
-
-            <div class="custom-row">
-                <input id="customMealInput" type="text" placeholder="Or type your own…" maxlength="80" autocomplete="off">
-                <button id="customMealBtn" type="button" class="btn btn-primary btn-sm">Set</button>
-            </div>
-
-            <div class="alts-head">
-                <span class="alts-label">Alternatives</span>
-                <button id="shuffleAltsBtn" type="button" class="btn-link btn-link-sm">Shuffle</button>
-            </div>
-            <ul id="altList" class="alt-list"></ul>
-
-            <button id="clearDayBtn" type="button" class="btn btn-danger-soft btn-block">Remove this day</button>
-        </div>
-    </aside>
 
 </main>
 

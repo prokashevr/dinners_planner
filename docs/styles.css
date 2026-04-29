@@ -365,22 +365,8 @@ input {
     transform: scale(0.98);
 }
 
-.btn-danger-soft {
-    background: var(--danger-soft);
-    color: var(--danger);
-}
-
-.btn-danger-soft:hover {
-    background: rgba(185, 28, 28, 0.18);
-}
-
 .btn-block {
     width: 100%;
-}
-
-.btn-sm {
-    padding: 10px 14px;
-    font-size: 0.86rem;
 }
 
 .btn-link {
@@ -394,27 +380,6 @@ input {
 
 .btn-link:hover {
     background: var(--accent-soft);
-}
-
-.btn-link-sm {
-    font-size: 0.82rem;
-}
-
-.icon-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--ink-2);
-    font-size: 1.4rem;
-    line-height: 1;
-    transition: background 0.14s ease;
-}
-
-.icon-btn:hover {
-    background: var(--surface-2);
 }
 
 /* ---------- Error banner ---------- */
@@ -490,7 +455,7 @@ input {
     gap: 10px;
     box-shadow: var(--shadow-md);
     cursor: pointer;
-    transition: transform 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+    transition: border-color 0.14s ease, box-shadow 0.14s ease, transform 0.14s ease;
     -webkit-tap-highlight-color: transparent;
 }
 
@@ -498,8 +463,18 @@ input {
     border-color: var(--accent-ring);
 }
 
-.day-card:active {
-    transform: scale(0.995);
+.day-card:active:not(.is-editing) {
+    transform: scale(0.998);
+}
+
+.day-card.is-editing {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-ring), var(--shadow-md);
+    cursor: default;
+}
+
+.day-card.is-editing .day-card-head {
+    cursor: pointer;
 }
 
 .day-card.is-empty {
@@ -510,6 +485,141 @@ input {
 
 .day-card.is-custom {
     background: linear-gradient(135deg, var(--surface) 0%, var(--surface-2) 100%);
+}
+
+.day-card-chevron {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-2);
+    color: var(--ink-dim);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1;
+    transition: background 0.14s ease, color 0.14s ease;
+}
+
+.day-card.is-editing .day-card-chevron {
+    background: var(--accent);
+    color: var(--bg);
+}
+
+.day-edit-panel {
+    margin-top: 4px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border-soft);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    cursor: default;
+}
+
+.alts-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.alts-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--ink-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.alt-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.alt-item {
+    background: var(--bg);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: border-color 0.14s ease, transform 0.14s ease;
+    -webkit-tap-highlight-color: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.alt-item:hover {
+    border-color: var(--accent);
+}
+
+.alt-item:active {
+    transform: scale(0.99);
+}
+
+.alt-name {
+    font-weight: 700;
+    color: var(--ink);
+    font-size: 0.92rem;
+    line-height: 1.3;
+}
+
+.alt-meta {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.alt-empty {
+    color: var(--ink-dim);
+    font-size: 0.86rem;
+    font-style: italic;
+    text-align: center;
+    padding: 10px;
+}
+
+.custom-row {
+    display: flex;
+    gap: 8px;
+}
+
+.custom-row input {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg);
+    font-size: 0.92rem;
+    color: var(--ink);
+    transition: border-color 0.14s ease, box-shadow 0.14s ease;
+}
+
+.custom-row input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-ring);
+}
+
+.btn-sm {
+    padding: 9px 14px;
+    font-size: 0.86rem;
+}
+
+.btn-link-sm {
+    font-size: 0.82rem;
+}
+
+.btn-danger-soft {
+    background: var(--danger-soft);
+    color: var(--danger);
+}
+
+.btn-danger-soft:hover {
+    background: rgba(185, 28, 28, 0.18);
 }
 
 .day-card-head {
@@ -582,164 +692,6 @@ input {
 
 .plan-actions .btn {
     flex: 1;
-}
-
-/* ---------- Bottom sheet ---------- */
-
-.sheet-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(42, 31, 23, 0.45);
-    backdrop-filter: blur(2px);
-    z-index: 50;
-    animation: fadeIn 0.2s ease-out;
-}
-
-.sheet {
-    position: fixed;
-    left: 50%;
-    bottom: 0;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 560px;
-    background: var(--bg);
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    box-shadow: var(--shadow-lg);
-    z-index: 60;
-    max-height: 85dvh;
-    display: flex;
-    flex-direction: column;
-    animation: slideUp 0.22s cubic-bezier(0.32, 0.72, 0, 1);
-    padding-bottom: var(--safe-bottom);
-}
-
-@keyframes slideUp {
-    from { transform: translate(-50%, 100%); }
-    to { transform: translate(-50%, 0); }
-}
-
-.sheet-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 18px 20px 8px 20px;
-    border-bottom: 1px solid var(--border-soft);
-    flex-shrink: 0;
-}
-
-.sheet-title {
-    font-size: 1.0rem;
-    font-weight: 800;
-    margin: 0;
-    color: var(--ink);
-}
-
-.sheet-body {
-    overflow-y: auto;
-    padding: 14px 20px 20px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-}
-
-.sheet-current {
-    color: var(--ink-2);
-    font-size: 0.9rem;
-    margin: 0;
-    font-weight: 500;
-}
-
-.sheet-current strong {
-    color: var(--ink);
-    font-weight: 700;
-}
-
-.custom-row {
-    display: flex;
-    gap: 8px;
-}
-
-.custom-row input {
-    flex: 1;
-    padding: 12px 14px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
-    background: var(--surface);
-    font-size: 0.95rem;
-    color: var(--ink);
-    transition: border-color 0.14s ease, box-shadow 0.14s ease;
-}
-
-.custom-row input:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-ring);
-}
-
-.alts-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-top: 4px;
-}
-
-.alts-label {
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: var(--ink-dim);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-}
-
-.alt-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.alt-item {
-    background: var(--surface);
-    border: 1px solid var(--border-soft);
-    border-radius: var(--radius-sm);
-    padding: 12px 14px;
-    cursor: pointer;
-    transition: border-color 0.14s ease, transform 0.14s ease;
-    -webkit-tap-highlight-color: transparent;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.alt-item:hover {
-    border-color: var(--accent-ring);
-}
-
-.alt-item:active {
-    transform: scale(0.99);
-}
-
-.alt-name {
-    font-weight: 700;
-    color: var(--ink);
-    font-size: 0.94rem;
-    line-height: 1.3;
-}
-
-.alt-meta {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-}
-
-.alt-empty {
-    color: var(--ink-dim);
-    font-size: 0.88rem;
-    font-style: italic;
-    text-align: center;
-    padding: 14px;
 }
 
 /* ---------- Responsive tweaks ---------- */

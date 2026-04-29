@@ -1,8 +1,9 @@
 'use strict';
 
-const STORAGE_KEY = 'dinnerPlanner_v1';
+const STORAGE_KEY = 'dinnerPlanner_v2';
 const MAX_DAYS = 14;
 const MIN_DAYS = 1;
+const MAX_RECIPE_DAYS = 2;
 const ALT_SAMPLE_SIZE = 6;
 
 const PROTEIN_LABELS = {
@@ -29,15 +30,20 @@ let state = {
         cookingEvenings: 4,
         proteins: [],
         allowComplex: false,
-        katyaDays: 3,
-        romaDays: 4,
+        katyaEvenings: 2,
+        romaEvenings: 2,
     },
     plan: null,
     savedAt: null,
 };
 
 // Track which side the user moved last so auto-balance favors the other side.
-let _lastSplitTouched = 'romaDays';
+let _lastSplitTouched = 'romaEvenings';
+
+// Inline-edit state (only meaningful while state.view === 'plan').
+let _editingDayIndex = null;
+let _altPool = [];
+let _altShown = [];
 
 // ---------- Persistence ----------
 
@@ -48,7 +54,11 @@ function loadState() {
         const parsed = JSON.parse(raw);
         if (parsed && typeof parsed === 'object') {
             state = { ...state, ...parsed };
-            state.setup = { ...state.setup, ...(parsed.setup || {}) };
+            const incomingSetup = { ...(parsed.setup || {}) };
+            // Drop legacy keys from earlier schema (days-based split).
+            delete incomingSetup.katyaDays;
+            delete incomingSetup.romaDays;
+            state.setup = { ...state.setup, ...incomingSetup };
         }
     } catch (_) {}
 }
@@ -127,30 +137,36 @@ function pickSubset(pool, count, targetDays) {
 
 /**
  * Generate a plan based on `setup`. Returns { days: [...] } or null if no solution.
+ *
+ * Recipe counts per author are given (`katyaEvenings`, `romaEvenings`).
+ * The total daysCovered must sum to `totalDays`. We iterate possible
+ * Katya day-totals and ask each pool for a subset matching count + days.
  */
 function generatePlan(setup) {
     const filtered = recipes.filter(r => recipeMatches(r, setup));
     const katyaPool = filtered.filter(r => r.author === 'Katya');
     const romaPool = filtered.filter(r => r.author === 'Roma');
 
-    const evenings = setup.cookingEvenings;
-    const splits = [];
-    for (let k = 0; k <= evenings; k++) {
-        splits.push([k, evenings - k]);
+    const K = setup.katyaEvenings;
+    const R = setup.romaEvenings;
+    const T = setup.totalDays;
+
+    if (K > katyaPool.length || R > romaPool.length) return null;
+
+    // Possible katya day totals: K (all 1-day) up to K * MAX_RECIPE_DAYS.
+    const kDayTargets = [];
+    for (let kd = K; kd <= K * MAX_RECIPE_DAYS; kd++) {
+        const rd = T - kd;
+        if (rd < R) continue;                       // each Roma recipe needs ≥1 day
+        if (rd > R * MAX_RECIPE_DAYS) continue;     // can't pad
+        kDayTargets.push(kd);
     }
 
-    const shuffledSplits = shuffle(splits);
-
-    for (const [k, r] of shuffledSplits) {
-        if (k > katyaPool.length || r > romaPool.length) continue;
-        if (k === 0 && setup.katyaDays !== 0) continue;
-        if (r === 0 && setup.romaDays !== 0) continue;
-        if (k > 0 && setup.katyaDays === 0) continue;
-        if (r > 0 && setup.romaDays === 0) continue;
-
-        const katyaPicks = pickSubset(katyaPool, k, setup.katyaDays);
+    for (const kd of shuffle(kDayTargets)) {
+        const rd = T - kd;
+        const katyaPicks = pickSubset(katyaPool, K, kd);
         if (!katyaPicks) continue;
-        const romaPicks = pickSubset(romaPool, r, setup.romaDays);
+        const romaPicks = pickSubset(romaPool, R, rd);
         if (!romaPicks) continue;
 
         const allPicks = shuffle([...katyaPicks, ...romaPicks]);
@@ -207,8 +223,8 @@ function renderProteinPills() {
 function renderSetup() {
     $('#totalDays').value = state.setup.totalDays;
     $('#cookingEvenings').value = state.setup.cookingEvenings;
-    $('#katyaDays').value = state.setup.katyaDays;
-    $('#romaDays').value = state.setup.romaDays;
+    $('#katyaEvenings').value = state.setup.katyaEvenings;
+    $('#romaEvenings').value = state.setup.romaEvenings;
     $('#allowComplex').checked = state.setup.allowComplex;
 
     $$('#proteinList .pill').forEach(p => {
@@ -224,8 +240,8 @@ function updateStepperLimits() {
     const s = state.setup;
     setStepperBtnDisabled('totalDays', s.totalDays <= MIN_DAYS, s.totalDays >= MAX_DAYS);
     setStepperBtnDisabled('cookingEvenings', s.cookingEvenings <= 1, s.cookingEvenings >= s.totalDays);
-    setStepperBtnDisabled('katyaDays', s.katyaDays <= 0, s.katyaDays >= s.totalDays);
-    setStepperBtnDisabled('romaDays', s.romaDays <= 0, s.romaDays >= s.totalDays);
+    setStepperBtnDisabled('katyaEvenings', s.katyaEvenings <= 0, s.katyaEvenings >= s.cookingEvenings);
+    setStepperBtnDisabled('romaEvenings', s.romaEvenings <= 0, s.romaEvenings >= s.cookingEvenings);
 }
 
 function setStepperBtnDisabled(name, disableMinus, disablePlus) {
@@ -240,8 +256,8 @@ function validateSetup() {
     const errs = [];
     if (s.cookingEvenings > s.totalDays) errs.push('Cooking evenings can’t exceed total days.');
     if (s.cookingEvenings < 1) errs.push('Need at least one cooking evening.');
-    if (s.katyaDays + s.romaDays !== s.totalDays) {
-        errs.push(`Cook days must sum to ${s.totalDays} (currently ${s.katyaDays + s.romaDays}).`);
+    if (s.katyaEvenings + s.romaEvenings !== s.cookingEvenings) {
+        errs.push(`Cook evenings must sum to ${s.cookingEvenings} (currently ${s.katyaEvenings + s.romaEvenings}).`);
     }
     const banner = $('#setupError');
     if (errs.length) {
@@ -260,33 +276,38 @@ function adjustStep(name, delta) {
     const next = { ...s };
     if (name === 'totalDays') {
         next.totalDays = clamp(s.totalDays + delta, MIN_DAYS, MAX_DAYS);
-        if (next.cookingEvenings > next.totalDays) next.cookingEvenings = next.totalDays;
-        // Auto-rebalance the split to match new total.
-        const sum = next.katyaDays + next.romaDays;
-        const diff = next.totalDays - sum;
-        if (diff !== 0) {
-            const target = _lastSplitTouched === 'katyaDays' ? 'romaDays' : 'katyaDays';
-            next[target] = clamp(next[target] + diff, 0, next.totalDays);
-            const stillOff = next.totalDays - (next.katyaDays + next.romaDays);
-            if (stillOff !== 0) {
-                const other = target === 'katyaDays' ? 'romaDays' : 'katyaDays';
-                next[other] = clamp(next[other] + stillOff, 0, next.totalDays);
-            }
+        if (next.cookingEvenings > next.totalDays) {
+            next.cookingEvenings = next.totalDays;
+            rebalanceEveningsSplit(next);
         }
     } else if (name === 'cookingEvenings') {
         next.cookingEvenings = clamp(s.cookingEvenings + delta, 1, s.totalDays);
-    } else if (name === 'katyaDays') {
-        next.katyaDays = clamp(s.katyaDays + delta, 0, s.totalDays);
-        next.romaDays = clamp(s.totalDays - next.katyaDays, 0, s.totalDays);
-        _lastSplitTouched = 'katyaDays';
-    } else if (name === 'romaDays') {
-        next.romaDays = clamp(s.romaDays + delta, 0, s.totalDays);
-        next.katyaDays = clamp(s.totalDays - next.romaDays, 0, s.totalDays);
-        _lastSplitTouched = 'romaDays';
+        rebalanceEveningsSplit(next);
+    } else if (name === 'katyaEvenings') {
+        next.katyaEvenings = clamp(s.katyaEvenings + delta, 0, s.cookingEvenings);
+        next.romaEvenings = clamp(s.cookingEvenings - next.katyaEvenings, 0, s.cookingEvenings);
+        _lastSplitTouched = 'katyaEvenings';
+    } else if (name === 'romaEvenings') {
+        next.romaEvenings = clamp(s.romaEvenings + delta, 0, s.cookingEvenings);
+        next.katyaEvenings = clamp(s.cookingEvenings - next.romaEvenings, 0, s.cookingEvenings);
+        _lastSplitTouched = 'romaEvenings';
     }
     state.setup = next;
     saveState();
     renderSetup();
+}
+
+function rebalanceEveningsSplit(s) {
+    const sum = s.katyaEvenings + s.romaEvenings;
+    const diff = s.cookingEvenings - sum;
+    if (diff === 0) return;
+    const target = _lastSplitTouched === 'katyaEvenings' ? 'romaEvenings' : 'katyaEvenings';
+    s[target] = clamp(s[target] + diff, 0, s.cookingEvenings);
+    const stillOff = s.cookingEvenings - (s.katyaEvenings + s.romaEvenings);
+    if (stillOff !== 0) {
+        const other = target === 'katyaEvenings' ? 'romaEvenings' : 'katyaEvenings';
+        s[other] = clamp(s[other] + stillOff, 0, s.cookingEvenings);
+    }
 }
 
 function clamp(n, lo, hi) {
@@ -311,6 +332,7 @@ function setAllowComplex(v) {
 // ---------- Plan view ----------
 
 function showSetup() {
+    closeEdit();
     state.view = 'setup';
     saveState();
     renderView();
@@ -339,7 +361,7 @@ function renderPlan() {
     const s = state.setup;
     setText(
         $('#planSummary'),
-        `${s.totalDays} days · ${s.cookingEvenings} evenings · Katya ${s.katyaDays} / Roma ${s.romaDays}`,
+        `${s.totalDays} days · Katya ${s.katyaEvenings} / Roma ${s.romaEvenings} evenings`,
     );
 
     // Collapse spans for visual rendering.
@@ -383,44 +405,80 @@ function renderDayCard(card) {
         card.firstIndex === card.lastIndex
             ? `Day ${card.firstIndex + 1}`
             : `Day ${card.firstIndex + 1}–${card.lastIndex + 1}`;
+    const isEditing = _editingDayIndex === card.firstIndex;
+    const editingClass = isEditing ? ' is-editing' : '';
+    const isEmpty = !d || !d.recipe;
+    const isCustom = !isEmpty && d.custom;
 
-    if (!d || !d.recipe) {
-        return `
-            <li class="day-card is-empty" data-day-index="${card.firstIndex}">
-                <div class="day-card-head">
-                    <span class="day-label">${dayLabel}</span>
-                </div>
-                <p class="day-name">Tap to plan</p>
-            </li>`;
-    }
-
-    const r = d.recipe;
-    const isCustom = d.custom;
-    const tags = [];
-    if (!isCustom && r.author) {
-        tags.push(`<span class="tag tag-author-${r.author.toLowerCase()}">${escapeHtml(r.author)}</span>`);
-    }
-    if (!isCustom && r.proteins) {
-        r.proteins.forEach(p => {
-            const cls = p === 'vegetarian' ? 'tag tag-veg' : 'tag';
-            tags.push(`<span class="${cls}">${escapeHtml(proteinLabel(p))}</span>`);
-        });
-    }
-    if (!isCustom && r.complexity === 'complex') {
-        tags.push(`<span class="tag tag-complex">Complex</span>`);
-    }
-    if (isCustom) {
-        tags.push(`<span class="tag">Custom</span>`);
+    let body;
+    if (isEmpty) {
+        body = `<p class="day-name day-name-empty">No meal</p>`;
+    } else {
+        const r = d.recipe;
+        const tags = [];
+        if (!isCustom && r.author) {
+            tags.push(`<span class="tag tag-author-${r.author.toLowerCase()}">${escapeHtml(r.author)}</span>`);
+        }
+        if (!isCustom && r.proteins) {
+            r.proteins.forEach(p => {
+                const cls = p === 'vegetarian' ? 'tag tag-veg' : 'tag';
+                tags.push(`<span class="${cls}">${escapeHtml(proteinLabel(p))}</span>`);
+            });
+        }
+        if (!isCustom && r.complexity === 'complex') {
+            tags.push(`<span class="tag tag-complex">Complex</span>`);
+        }
+        if (isCustom) {
+            tags.push(`<span class="tag">Custom</span>`);
+        }
+        body = `
+            <p class="day-name">${escapeHtml(r.name)}</p>
+            <div class="day-tags">${tags.join('')}</div>`;
     }
 
     return `
-        <li class="day-card${isCustom ? ' is-custom' : ''}" data-day-index="${card.firstIndex}">
+        <li class="day-card${isEmpty ? ' is-empty' : ''}${isCustom ? ' is-custom' : ''}${editingClass}" data-day-index="${card.firstIndex}">
             <div class="day-card-head">
                 <span class="day-label">${dayLabel}</span>
+                <span class="day-card-chevron" aria-hidden="true">${isEditing ? '×' : '+'}</span>
             </div>
-            <p class="day-name">${escapeHtml(r.name)}</p>
-            <div class="day-tags">${tags.join('')}</div>
+            ${body}
+            ${isEditing ? renderEditPanel(card.firstIndex) : ''}
         </li>`;
+}
+
+function renderEditPanel(dayIndex) {
+    const altsHtml = _altShown.length === 0
+        ? `<li class="alt-empty">No alternatives match these constraints.</li>`
+        : _altShown.map((r, i) => {
+            const tags = [
+                `<span class="tag tag-author-${r.author.toLowerCase()}">${escapeHtml(r.author)}</span>`,
+                ...r.proteins.map(p => {
+                    const cls = p === 'vegetarian' ? 'tag tag-veg' : 'tag';
+                    return `<span class="${cls}">${escapeHtml(proteinLabel(p))}</span>`;
+                }),
+                `<span class="tag">${r.daysCovered}d</span>`,
+            ];
+            return `
+                <li class="alt-item" data-alt-index="${i}">
+                    <span class="alt-name">${escapeHtml(r.name)}</span>
+                    <div class="alt-meta">${tags.join('')}</div>
+                </li>`;
+        }).join('');
+
+    return `
+        <div class="day-edit-panel" data-edit-panel="${dayIndex}">
+            <div class="alts-head">
+                <span class="alts-label">Alternatives</span>
+                <button type="button" class="btn-link btn-link-sm" data-shuffle-alts>Shuffle</button>
+            </div>
+            <ul class="alt-list">${altsHtml}</ul>
+            <div class="custom-row">
+                <input type="text" class="custom-meal-input" placeholder="Or type your own…" maxlength="80" autocomplete="off">
+                <button type="button" class="btn btn-primary btn-sm" data-set-custom>Set</button>
+            </div>
+            <button type="button" class="btn btn-danger-soft btn-block btn-sm" data-clear-day>Remove this day</button>
+        </div>`;
 }
 
 function flashSaved() {
@@ -430,81 +488,53 @@ function flashSaved() {
     flashSaved._t = setTimeout(() => { el.hidden = true; }, 1400);
 }
 
-// ---------- Modify-day sheet ----------
+// ---------- Inline day editor ----------
 
-let _editingDayIndex = null;
-let _altPool = [];
-let _altShown = [];
-
-function openSheet(dayIndex) {
+function openEdit(dayIndex) {
+    if (!state.plan) return;
     _editingDayIndex = dayIndex;
-    const day = state.plan.days[dayIndex];
-    const setup = state.setup;
-    const remainingSpan = countRemainingSpan(dayIndex);
-
-    $('#sheetTitle').textContent = `Modify Day ${dayIndex + 1}`;
-    if (day && day.recipe) {
-        $('#sheetCurrent').innerHTML = `Currently <strong>${escapeHtml(day.recipe.name)}</strong>.`;
-    } else {
-        $('#sheetCurrent').textContent = 'No meal planned for this day.';
-    }
-    $('#customMealInput').value = '';
-
-    _altPool = recipes.filter(r => recipeMatches(r, setup) && r.daysCovered <= remainingSpan);
-    sampleAlts();
-
-    $('#sheetBackdrop').hidden = false;
-    $('#modifySheet').hidden = false;
-    document.body.style.overflow = 'hidden';
-    setTimeout(() => $('#customMealInput').focus({ preventScroll: true }), 80);
+    const remainingSpan = state.plan.days.length - dayIndex;
+    _altPool = recipes.filter(r => recipeMatches(r, state.setup) && r.daysCovered <= remainingSpan);
+    _altShown = shuffle(_altPool).slice(0, ALT_SAMPLE_SIZE);
+    renderPlan();
+    setTimeout(() => {
+        const input = document.querySelector('.day-edit-panel .custom-meal-input');
+        if (input) input.focus({ preventScroll: true });
+    }, 60);
 }
 
-function countRemainingSpan(dayIndex) {
-    return state.plan.days.length - dayIndex;
-}
-
-function closeSheet() {
-    $('#sheetBackdrop').hidden = true;
-    $('#modifySheet').hidden = true;
-    document.body.style.overflow = '';
+function closeEdit() {
     _editingDayIndex = null;
+    _altPool = [];
+    _altShown = [];
+    if (state.view === 'plan') renderPlan();
+}
+
+function toggleEdit(dayIndex) {
+    if (_editingDayIndex === dayIndex) closeEdit();
+    else openEdit(dayIndex);
 }
 
 function sampleAlts() {
+    if (_editingDayIndex == null || _altPool.length === 0) return;
     _altShown = shuffle(_altPool).slice(0, ALT_SAMPLE_SIZE);
-    const list = $('#altList');
-    if (_altShown.length === 0) {
-        list.innerHTML = `<li class="alt-empty">No alternatives match these constraints.</li>`;
-        return;
-    }
-    list.innerHTML = _altShown.map((r, i) => {
-        const tags = [
-            `<span class="tag tag-author-${r.author.toLowerCase()}">${escapeHtml(r.author)}</span>`,
-            ...r.proteins.map(p => {
-                const cls = p === 'vegetarian' ? 'tag tag-veg' : 'tag';
-                return `<span class="${cls}">${escapeHtml(proteinLabel(p))}</span>`;
-            }),
-            `<span class="tag">${r.daysCovered}d</span>`,
-        ];
-        return `
-            <li class="alt-item" data-alt-index="${i}">
-                <span class="alt-name">${escapeHtml(r.name)}</span>
-                <div class="alt-meta">${tags.join('')}</div>
-            </li>`;
-    }).join('');
+    renderPlan();
 }
 
 function applyAlt(idx) {
     const recipe = _altShown[idx];
-    if (!recipe) return;
+    if (!recipe || _editingDayIndex == null) return;
     replaceDayWithRecipe(_editingDayIndex, recipe);
-    closeSheet();
+    closeEdit();
 }
 
-function applyCustom() {
-    const v = $('#customMealInput').value.trim();
+function applyCustomFromPanel() {
+    const input = document.querySelector('.day-edit-panel .custom-meal-input');
+    if (!input || _editingDayIndex == null) return;
+    const v = input.value.trim();
     if (!v) return;
     const day = _editingDayIndex;
+    clearTrailingSpanFrom(day);
     state.plan.days[day] = {
         dayIndex: day,
         recipe: { id: 'custom-' + day, name: v, proteins: [], complexity: 'simple', daysCovered: 1, author: '' },
@@ -512,11 +542,8 @@ function applyCustom() {
         spanLength: 1,
         custom: true,
     };
-    // Trailing days previously covered by this slot become empty.
-    clearTrailingSpanFrom(day);
     saveState();
-    renderPlan();
-    closeSheet();
+    closeEdit();
 }
 
 function replaceDayWithRecipe(dayIndex, recipe) {
@@ -534,11 +561,9 @@ function replaceDayWithRecipe(dayIndex, recipe) {
         };
     }
     saveState();
-    renderPlan();
 }
 
 function clearTrailingSpanFrom(dayIndex) {
-    // If the day at dayIndex is part of an existing multi-day span, free trailing siblings.
     const day = state.plan.days[dayIndex];
     if (!day || !day.recipe) {
         emptyDay(dayIndex);
@@ -565,8 +590,7 @@ function clearDay() {
     if (_editingDayIndex == null) return;
     clearTrailingSpanFrom(_editingDayIndex);
     saveState();
-    renderPlan();
-    closeSheet();
+    closeEdit();
 }
 
 // ---------- Generate / regenerate ----------
@@ -605,7 +629,7 @@ function handleSavePlan() {
 // ---------- Event wiring ----------
 
 function bindEvents() {
-    // Stepper buttons (event delegation).
+    // Stepper buttons + protein pills + per-day editor (event delegation).
     document.addEventListener('click', e => {
         const stepBtn = e.target.closest('.step-btn');
         if (stepBtn) {
@@ -623,16 +647,31 @@ function bindEvents() {
             return;
         }
 
-        const dayCard = e.target.closest('.day-card[data-day-index]');
-        if (dayCard) {
-            openSheet(Number(dayCard.dataset.dayIndex));
-            return;
-        }
+        // Edit-panel actions (must come before card toggle since panel is inside the card).
+        if (e.target.closest('[data-shuffle-alts]')) { sampleAlts(); return; }
+        if (e.target.closest('[data-set-custom]')) { applyCustomFromPanel(); return; }
+        if (e.target.closest('[data-clear-day]')) { clearDay(); return; }
 
         const altItem = e.target.closest('.alt-item[data-alt-index]');
         if (altItem) {
             applyAlt(Number(altItem.dataset.altIndex));
             return;
+        }
+
+        // Click inside an open edit panel that didn't match a specific action: ignore.
+        if (e.target.closest('.day-edit-panel')) return;
+
+        const dayCard = e.target.closest('.day-card[data-day-index]');
+        if (dayCard) {
+            toggleEdit(Number(dayCard.dataset.dayIndex));
+            return;
+        }
+    });
+
+    document.addEventListener('keydown', e => {
+        if (e.target && e.target.matches && e.target.matches('.custom-meal-input') && e.key === 'Enter') {
+            e.preventDefault();
+            applyCustomFromPanel();
         }
     });
 
@@ -647,22 +686,6 @@ function bindEvents() {
     $('#regenerateBtn').addEventListener('click', handleRegenerate);
     $('#newPlanBtn').addEventListener('click', handleNewPlan);
     $('#savePlanBtn').addEventListener('click', handleSavePlan);
-
-    $('#sheetBackdrop').addEventListener('click', closeSheet);
-    $('#sheetCloseBtn').addEventListener('click', closeSheet);
-    $('#shuffleAltsBtn').addEventListener('click', sampleAlts);
-    $('#customMealBtn').addEventListener('click', applyCustom);
-    $('#customMealInput').addEventListener('keydown', e => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            applyCustom();
-        }
-    });
-    $('#clearDayBtn').addEventListener('click', clearDay);
-
-    document.addEventListener('keydown', e => {
-        if (e.key === 'Escape' && !$('#modifySheet').hidden) closeSheet();
-    });
 }
 
 function registerSW() {
